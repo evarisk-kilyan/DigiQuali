@@ -130,11 +130,11 @@ window.digiquali.question.selectAnswerPicto = function() {
 window.digiquali.question.changeQuestionType = function() {
   let questionType = $(this).val();
   if (questionType === 'Percentage') {
-    $(document).find('#percentage-question-step').removeClass('hidden');
-    $(document).find('#percentage-question-step input').prop('disabled', false);
+    $(document).find('[id^="percentage-question-"]').removeClass('hidden');
+    $(document).find('[id^="percentage-question-"] input').prop('disabled', false);
   } else {
-    $(document).find('#percentage-question-step').addClass('hidden');
-    $(document).find('#percentage-question-step input').prop('disabled', true);
+    $(document).find('[id^="percentage-question-"]').addClass('hidden');
+    $(document).find('[id^="percentage-question-"] input').prop('disabled', true);
   }
   const defaultPointsByQuestionType = JSON.parse($(this).attr('data-default-points'));
   $(document).find('#points').val(defaultPointsByQuestionType[questionType]);

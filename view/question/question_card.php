@@ -296,6 +296,11 @@ if (empty($reshook)) {
             } else {
 				unset($objectConfig['config'][$object->type]['step']);
 			}
+			if (GETPOSTISSET('default-value') && !empty(GETPOSTINT('default-value'))) {
+                $objectConfig['config'][$object->type]['default-value'] = GETPOSTINT('default-value');
+            } else {
+				unset($objectConfig['config'][$object->type]['default-value']);
+			}
 			$answerMinValue = (GETPOSTISSET('answer-min-value') && GETPOST('answer-min-value') !== '') ? GETPOSTFLOAT('answer-min-value') : null;
             if (isset($answerMinValue)) {
 				if ($object->type == 'Percentage' && $answerMinValue < 0) {
@@ -391,6 +396,11 @@ if (empty($reshook)) {
 			$objectConfig['config'][$questionType]['step'] = GETPOSTINT('step');
 		} else {
 			unset($objectConfig['config'][$questionType]['step']);
+		}
+		if (GETPOSTISSET('default-value') && !empty(GETPOSTINT('default-value'))) {
+			$objectConfig['config'][$object->type]['default-value'] = GETPOSTINT('default-value');
+		} else {
+			unset($objectConfig['config'][$object->type]['default-value']);
 		}
 		$answerMinValue = (GETPOSTISSET('answer-min-value') && GETPOST('answer-min-value') !== '') ? GETPOSTFLOAT('answer-min-value') : null;
 		if (isset($answerMinValue)) {
@@ -859,6 +869,11 @@ if ($action == 'create') {
     print '<input type="number" name="step" id="step" min="2" value="' . (!empty(GETPOSTINT('step')) ? GETPOSTINT('step') : 2) . '">';
     print '</td></tr>';
 
+	// Default value for percentage question
+	print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-default"><td><label for="step">' . $langs->transnoentities('DefaultValue') . '</label></td><td>';
+    print '<input type="number" name="default-value" id="step" min="0" value="' . (!empty(GETPOSTINT('default-value')) ? GETPOSTINT('default-value') : 50) . '">';
+    print '</td></tr>';
+
 	// Min value
 	print '<tr class="' . ($object->canHaveBounds() ? '' : 'hidden') . '" id="question-answer-min-value"><td>';
 	print '<label for="answer-min-value">' . $langs->transnoentities('AnswerCorrectnessMinBound') . '<span class="question-answer-min-max-unit"></span></label>';
@@ -1005,6 +1020,11 @@ if (($id || $ref) && $action == 'edit') {
     // Step for percentage question type default hidden
     print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
     print '<input type="number" name="step" id="step" min="1" value="' . ($objectConfig['config'][$object->type]['step'] ?? 100) . '">';
+    print '</td></tr>';
+
+	// Default value for percentage question
+	print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-default"><td><label for="step">' . $langs->transnoentities('DefaultValue') . '</label></td><td>';
+    print '<input type="number" name="default-value" id="step" min="0" value="' . ($objectConfig['config'][$object->type]['default'] ?? 50) . '">';
     print '</td></tr>';
 
 	// Min value
@@ -1197,6 +1217,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print $langs->transnoentities('PercentageQuestionStep');
         print '</td><td>';
         print $objectConfig[$object->type]['step'];
+        print '</td></tr>';
+    }
+	if ($object->type == 'Percentage' && isset($objectConfig[$object->type]['default-value'])) {
+        print '<tr><td class="titlefield">';
+        print $langs->transnoentities('DefaultValue');
+        print '</td><td>';
+        print $objectConfig[$object->type]['default-value'];
         print '</td></tr>';
     }
     if ($object->canHaveBounds() && isset($objectConfig[$object->type]['answer-min-value'])) {

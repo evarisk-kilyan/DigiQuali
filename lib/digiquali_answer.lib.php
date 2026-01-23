@@ -135,6 +135,11 @@ function show_answer_from_question(Question $question, CommonObject $object, str
                 $step = $questionConfig[$question->type]['step'];
             }
 
+			if (!empty($questionConfig[$question->type]['default-value']) && $questionAnswer == '') {
+				$questionAnswer = $questionConfig[$question->type]['default-value'];
+			}
+
+
 			if ($showCorrection && $question->type == $question::TYPE_RANGE) {
 				$isAnswerCorrect = $question->isAnswerInQuestionRange($questionAnswer);
 				$answerCssClass = ($isAnswerCorrect && $questionAnswer !== '' ? ' correct' : ' incorrect');
