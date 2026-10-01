@@ -198,3 +198,5 @@ PhotoMultipleComment  = Comment
 PhotoMultipleStatus   = Status
 PhotoMultipleSummary  = %s photo(s) - %s OK - %s KO
 PhotoMultipleNoAnswer = No photo
+MediaLibrary          = Media library
+AddFromMediaLibrary   = Add from the media library

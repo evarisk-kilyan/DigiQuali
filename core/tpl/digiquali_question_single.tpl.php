@@ -78,6 +78,15 @@ if (!isset($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER) || empty($
                                     'file_upload_data' => ['fk_control' => $object->id, 'fk_question' => $question->id],
                                     'show_upload'      => $object->status == 0,
                                 ]); ?>
+                                <?php // Photos already in the media library of the module, copied into the answer photos by the gallery modal.
+                                // Back office only : the frontend pages do not load that modal, and the library is not for anonymous eyes
+                                if ($object->status == 0 && empty($isFrontend) && !defined('NOLOGIN')) : ?>
+                                    <div class="wpeo-button button-square-50 modal-open wpeo-tooltip-event question__media-library" aria-label="<?php echo dol_escape_htmltag($langs->trans('AddFromMediaLibrary')); ?>" data-direction="top">
+                                        <?php // The subtype is the class of the photo block of the media block, the one the modal refreshes after adding ?>
+                                        <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id; ?>" data-from-type="<?php echo $object->element; ?>" data-from-subtype="<?php echo dol_escape_htmltag($question->ref); ?>" data-from-subdir="answer_photo/<?php echo dol_escape_htmltag($question->ref); ?>"/>
+                                        <i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
+                                    </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                             <?php if (!empty($object->project) && !empty($permissionToAddTask)) : ?>
                                 <div class="wpeo-button button-square-50 add-action modal-open">

@@ -22,8 +22,8 @@
  *
  * The rows only fill the hidden input named answer<questionId>, a JSON object keyed by photo name :
  * that input is what the save action and the auto-save read. The photos themselves come and go
- * through the Saturne media block of the question, whose responses are replayed here to keep the
- * table in step with the gallery.
+ * through the Saturne media block of the question, or come from the media library modal : the
+ * responses of both are replayed here to keep the table in step with the gallery.
  */
 
 /**
@@ -179,8 +179,9 @@ window.digiquali.photoMultiple.sync = function($widget, save) {
 };
 
 /**
- * Replay the page returned to a photo upload or deletion of the media block : the table of the
- * question gets its rows back from the server, with what was typed meanwhile kept on each photo
+ * Replay the page returned to a photo upload or deletion of the media block, or to photos added from
+ * the media library : the table of the question gets its rows back from the server, with what was
+ * typed meanwhile kept on each photo
  *
  * @memberof DigiQuali_PhotoMultiple
  *
@@ -193,13 +194,32 @@ window.digiquali.photoMultiple.sync = function($widget, save) {
  * @return {void}
  */
 window.digiquali.photoMultiple.onMediaBlockResponse = function(event, xhr, settings) {
-  if (!settings || !/[?&]action=(uploadPhoto|deletePhoto)(&|$)/.test(settings.url || '') || !(settings.data instanceof FormData)) {
+  const isMediaBlockRequest   = settings && /[?&]action=(uploadPhoto|deletePhoto)(&|$)/.test(settings.url || '') && settings.data instanceof FormData;
+  const isMediaLibraryRequest = settings && /[?&]subaction=addFiles(&|$)/.test(settings.url || '') && typeof settings.data === 'string';
+  if (!isMediaBlockRequest && !isMediaLibraryRequest) {
     return;
   }
 
-  const subDir = settings.data.get('sub_dir');
+  // The media block posts the directory from the module root, the library modal only its part under the object
+  let matchesWidget;
+  if (isMediaBlockRequest) {
+    const subDir  = settings.data.get('sub_dir');
+    matchesWidget = function(widgetSubDir) { return widgetSubDir === subDir; };
+  } else {
+    let libraryData = {};
+    try {
+      libraryData = JSON.parse(settings.data) || {};
+    } catch (e) {
+      return;
+    }
+    const objectSubdir = '/' + (libraryData.objectSubdir || '');
+    matchesWidget = function(widgetSubDir) {
+      return objectSubdir.length > 1 && widgetSubDir.slice(-objectSubdir.length) === objectSubdir;
+    };
+  }
+
   const $widget = $('.question-photo-multiple').filter(function() {
-    return $(this).attr('data-sub-dir') === subDir;
+    return matchesWidget($(this).attr('data-sub-dir') || '');
   });
   if (!$widget.length || !xhr || typeof xhr.responseText !== 'string') {
     return;
